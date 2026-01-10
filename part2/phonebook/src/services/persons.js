@@ -18,4 +18,4 @@ const deleteUser = (id) => {
     return req.then(response => response.data)
 }
 
-export default { getAll, createUser }
+export default { getAll, createUser, deleteUser }

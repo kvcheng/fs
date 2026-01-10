@@ -39,6 +39,16 @@ const App = () => {
     }
   }
 
+  const deletePerson = (name, id) => {
+    if (window.confirm(`Delete ${name}?`)) {
+      personsService
+        .deleteUser(id)
+        .then(res => {
+          setPersons(persons.filter(person => person.id !== id));
+        })
+    }
+  }
+
   const updateName = (event) => {
     console.log(event.target.value)
     setNewName(event.target.value)
@@ -66,7 +76,7 @@ const App = () => {
         numberOnChange={updateNumber}
       ></PersonForm>
       <h2>Numbers</h2>
-      <Persons persons={persons} filter={newFilter}></Persons>
+      <Persons persons={persons} filter={newFilter} onDelete={deletePerson}></Persons>
     </div>
   )
 }
