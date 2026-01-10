@@ -1,8 +1,8 @@
 import { useState, useEffect } from 'react'
-import axios from 'axios'
 import PersonForm from './components/PersonForm'
 import Filter from './components/Filter'
 import Persons from './components/Persons'
+import personsService from './services/persons'
 
 const App = () => {
   const [persons, setPersons] = useState([])
@@ -11,13 +11,13 @@ const App = () => {
   const [newFilter, setNewFilter] = useState('')
 
   useEffect(() => {
-    axios
-      .get('http://localhost:3001/persons')
-      .then(response => {
-        setPersons(response.data)
-        console.log('successfully added data from db')
+    personsService
+      .getAll()
+      .then(initialPersons => {
+        setPersons(initialPersons)
       })
   }, [])
+
   const addDetails = (event) => {
     event.preventDefault()
     const doesExist = persons.find(person => person.name === newName)
@@ -28,10 +28,14 @@ const App = () => {
         name: newName,
         number: newNumber
       }
-  
-      setPersons(persons.concat(newObj))
-      setNewName('')
-      setNewNumber('')
+      
+      personsService
+        .createUser(newObj)
+        .then(returned => {
+          setPersons(persons.concat(returned))
+          setNewName('')
+          setNewNumber('')
+        })
     }
   }
 
