@@ -24,6 +24,16 @@
       "id": "5",
       "content": "testing whether this works",
       "important": true
+    },
+    {
+      "id": "6",
+      "content": "testing",
+      "important": true
+    },
+    {
+      "id": "7",
+      "content": "testing",
+      "important": false
     }
   ]
 }
