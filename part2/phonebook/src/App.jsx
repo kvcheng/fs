@@ -52,6 +52,12 @@ const App = () => {
             setNotif(null)
           }, 3000);
         })
+        .catch((err) => {
+          setNotif({message: err.response.data.error, type: `error`})
+          setTimeout(() => {
+            setNotif(null)
+          }, 3000);
+        })
     }
   }
 

@@ -18,6 +18,8 @@ const errorHandler = (error, request, response, next) => {
 
   if (error.name === 'CastError') {
     return response.status(400).send({ error: 'malformatted id' })
+  } else if (error.name === 'ValidationError') {
+    return response.status(400).json({ error: error.message })
   }
 
   next(error)
@@ -48,30 +50,19 @@ app.delete('/api/persons/:id', (request, response, next) => {
     .catch(error => next(error))
 })
 
-app.post('/api/persons', (request, response) => {
+app.post('/api/persons', (request, response, next) => {
     const body = request.body
-
-    if (!body.name || !body.number) {
-        return response.status(400).json({
-            error: 'missing name or number'
-        })
-    }
-
-    const alreadyExists = persons.find(person => person.name === body.name)
-    if (alreadyExists) {
-        return response.status(409).json({
-            error: 'this user already exists'
-        })
-    }
 
     const newPerson = new Person({
         name: body.name,
         number: body.number
     })
 
-    newPerson.save().then(newPerson => {
+    newPerson.save()
+    .then(newPerson => {
         response.json(newPerson)
     })
+    .catch(err => next(err))
 })
 
 app.put('/api/persons/:id', (request, response) => {
