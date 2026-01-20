@@ -5,11 +5,23 @@ const express = require('express')
 const app = express()
 
 const morgan = require('morgan')
+const person = require('./models/person')
+const note = require('../src/models/note')
 morgan.token('body', (req) => JSON.stringify(req.body))
 app.use(morgan(':method :url :status :res[content-length] - :response-time ms :body'))
 
 app.use(express.json())
 app.use(express.static('dist'))
+
+const errorHandler = (error, request, response, next) => {
+  console.error(error.message)
+
+  if (error.name === 'CastError') {
+    return response.status(400).send({ error: 'malformatted id' })
+  }
+
+  next(error)
+}
 
 let persons = [
 ]
@@ -20,16 +32,20 @@ app.get('/api/persons', (request, response) => {
     })
 })
 
-app.get('/api/persons/:id', (request, response) => {
-    Person.findById(request.params.id).then(res => {
+app.get('/api/persons/:id', (request, response, next) => {
+    Person.findById(request.params.id)
+    .then(res => {
         response.json(res)
     })
+    .catch((err) => next(err))
 })
 
-app.delete('/api/persons/:id', (request, response) => {
-    const id = request.params.id
-    persons = persons.filter(p => p.id !== id)
-    response.status(204).end()
+app.delete('/api/persons/:id', (request, response, next) => {
+    Person.findByIdAndDelete(request.params.id)
+    .then(res => {
+        response.status(204).end()
+    })
+    .catch(error => next(error))
 })
 
 app.post('/api/persons', (request, response) => {
@@ -56,16 +72,37 @@ app.post('/api/persons', (request, response) => {
     newPerson.save().then(newPerson => {
         response.json(newPerson)
     })
-
-
 })
+
+app.put('/api/persons/:id', (request, response) => {
+    const { name, number } = request.body
+    
+    Person.findById(request.params.id)
+    .then((person) => {
+        if (!person) { return response.status(404).end() }
+        
+        person.name = name
+        person.number = number
+
+        return person.save().then((updatedPerson) => {
+            response.json(updatedPerson)
+        })
+    })
+    .catch((err) => next(err))
+})
+
 app.get('/info', (request, response) => {
-    const info = `
-        Phonebook has info for ${persons.length} people <br><br>
-        ${new Date()}
-    `
-    response.send(info)
+    Person.find({}).then((res) => {
+        const info = `
+            Phonebook has info for ${res.length} people <br><br>
+            ${new Date()}
+        `
+        response.send(info)
+    })
 })
+
+
+app.use(errorHandler)
 
 const PORT = process.env.PORT
 app.listen(PORT, () => {

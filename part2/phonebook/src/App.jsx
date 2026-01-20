@@ -17,7 +17,7 @@ const App = () => {
       .getAll()
       .then(initialPersons => {
         setPersons(initialPersons)
-        console.log(initialPersons)
+        // console.log(initialPersons)
       })
   }, [])
 
@@ -72,7 +72,6 @@ const App = () => {
   }
 
   const updateName = (event) => {
-    console.log(event.target.value)
     setNewName(event.target.value)
   }
 
