@@ -199,10 +199,12 @@ describe('tests for POST /api/blogs', () => {
             likes: 0
         }
 
-        const user = await helper.createNewUser()
+        const user = await helper.createNewUser('newUser1824', 'testing')
+        const loggedUser = await helper.loginUser('newUser1824', 'testing')
 
         await api
             .post('/api/blogs')
+            .set('Authorization', `Bearer ${loggedUser.body.token}`)
             .send({ ...newBlog, userId: user._id })
             .expect(201)
             .expect('Content-Type', /application\/json/)
@@ -220,10 +222,12 @@ describe('tests for POST /api/blogs', () => {
             url: 'www.google.com',
         }
 
-        const user = await helper.createNewUser()
+        const user = await helper.createNewUser('newUser1824', 'testing')
+        const loggedUser = await helper.loginUser('newUser1824', 'testing')
 
         await api
             .post('/api/blogs')
+            .set('Authorization', `Bearer ${loggedUser.body.token}`)
             .send({ ...newBlog, userId: user._id })
 
         const res = await api.get('/api/blogs')
@@ -239,10 +243,12 @@ describe('tests for POST /api/blogs', () => {
             url: 'www.google.com',
         }
 
-        const user = await helper.createNewUser()
+        const user = await helper.createNewUser('newUser1824', 'testing')
+        const loggedUser = await helper.loginUser('newUser1824', 'testing')
 
         await api
             .post('/api/blogs')
+            .set('Authorization', `Bearer ${loggedUser.body.token}`)
             .send({ ...blogWithoutTitle, userId: user._id })
             .expect(400)
 
@@ -253,6 +259,7 @@ describe('tests for POST /api/blogs', () => {
 
         await api
             .post('/api/blogs')
+            .set('Authorization', `Bearer ${loggedUser.body.token}`)
             .send({ ...blogWithoutUrl, userId: user._id })
             .expect(400)
     })
@@ -260,17 +267,43 @@ describe('tests for POST /api/blogs', () => {
 
 describe('tests for DELETE /api/blogs/:id', () => {
     test('Succeeds with status code 204 with proper id', async() => {
-        const blogs = await helper.getBlogsInDb()
-        const blogToDelete = blogs[0]
+        const user = await helper.createNewUser('newUser1824', 'testing')
+        const loggedUser = await helper.loginUser('newUser1824', 'testing')
+
+        const blogToDelete = await helper.createBlog(loggedUser.body.token, user.id, {
+            title: 'A blog to delete',
+            author: 'KC',
+            url: 'www.google.com',
+            likes: 0
+        })
+
+        const blogsBefore = await helper.getBlogsInDb()
 
         await api
-            .delete(`/api/blogs/${blogToDelete.id}`)
+            .delete(`/api/blogs/${blogToDelete.body.id}`)
+            .set('Authorization', `Bearer ${loggedUser.body.token}`)
             .expect(204)
 
         const updatedDb = await helper.getBlogsInDb()
         const ids = updatedDb.map(blog => blog.id)
         assert(!ids.includes(blogToDelete.id))
-        assert.strictEqual(updatedDb.length, helper.blogs.length - 1)
+        assert.strictEqual(updatedDb.length, blogsBefore.length - 1)
+    })
+
+    test('Fails with status code 401 if token not provided', async() => {
+        const user = await helper.createNewUser('newUser1824', 'testing')
+        const loggedUser = await helper.loginUser('newUser1824', 'testing')
+
+        const blogToDelete = await helper.createBlog(loggedUser.body.token, user.id, {
+            title: 'A blog to delete',
+            author: 'KC',
+            url: 'www.google.com',
+            likes: 0
+        })
+
+        await api
+            .delete(`/api/blogs/${blogToDelete.body.id}`)
+            .expect(401)
     })
 })
 
