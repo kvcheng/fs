@@ -1,24 +1,24 @@
     import { useState, useEffect } from 'react'
     import Blog from './components/Blog'
-    import blogService from './services/blogs'
+    import blogService from './services/blogsService'
     import loginService from './services/loginService'
     import Notification from './components/Notification'
+    import BlogForm from './components/BlogForm'
+    import Togglable from './components/Togglable'
+    import LoginForm from './components/LoginForm'
 
     const App = () => {
     const [blogs, setBlogs] = useState([])
-    const [username, setUsername] = useState('')
-    const [password, setPassword] = useState('')
     const [user, setUser] = useState(null) // Holds token of user when logged in
     const [notification, setNotification] = useState(null)
 
-    const [title, setTitle] = useState('')
-    const [author, setAuthor] = useState('')
-    const [url, setUrl] = useState('')
+    const sortByLikesDesc = (list) => {
+        return [...list].sort((a, b) => b.likes - a.likes)
+    }
 
     useEffect(() => {
-        blogService.getAll().then(blogs =>
-        setBlogs( blogs )
-        )  
+        blogService.getAll()
+        .then(blogs => setBlogs(sortByLikesDesc(blogs)))
     }, [])
 
     useEffect(() => {
@@ -42,96 +42,56 @@
         loginService.setUserToken(null)
     }
 
-    const handleLogin = async(event) => {
-        event.preventDefault()
-
-        try {
-        const user = await loginService.login({ username, password })
-        window.localStorage.setItem('loggedBlogappUser', JSON.stringify(user))
-        loginService.setUserToken(user.token)
+    const handleLogin = async(user) => {
         setUser(user)
-        setUsername('')
-        setPassword('')
-        } catch {
-        handleNotification('Invalid username or password')
-        }
-    }
-
-    const handleNewBlog = async (event) => {
-        event.preventDefault()
-        const blogObject = {
-            title: event.target.title.value,
-            author: event.target.author.value,
-            url: event.target.url.value
-        }
-        try {
-            const newBlog = await loginService.createBlog(blogObject)
-            setBlogs(blogs.concat(newBlog))
-            handleNotification(`New blog ${title} created successfully`)
-            setTitle('')
-            setAuthor('')
-            setUrl('')
-        } catch {
-            handleNotification('Failed to create new blog')
-        }
-
     }
 
     const loginForm = () => {
         return (
-        <div>
-            <h2>Login:</h2>
-            <form onSubmit={handleLogin}>
-            <div>
-                <label>
-                Username:
-                <input
-                    type='text'
-                    value={username}
-                    onChange={({ target }) => setUsername(target.value)}
-                />
-                </label>
-            </div>
-            <div>
-                <label>
-                Password:
-                <input
-                    type='password'
-                    value={password}
-                    onChange={({ target }) => setPassword(target.value)}
-                />
-                </label>
-            </div>
-            <button type='submit'>Login</button>
-            </form>
-        </div>
+            <Togglable buttonLabel="Login">
+                <LoginForm onLogin={handleLogin} onNotification={handleNotification} />
+            </Togglable>
         )
     }
 
+    const updateBlog = (maybePromiseOrBlog) => {
+        if (maybePromiseOrBlog && typeof maybePromiseOrBlog.then === 'function') {
+            return maybePromiseOrBlog
+                .then(updatedBlog => setBlogs(prev => sortByLikesDesc(prev.map(b => b.id === updatedBlog.id ? updatedBlog : b))))
+                .catch(err => handleNotification('Failed to update blog: ' + (err.message || err)))
+        }
+
+        // plain blog object
+        setBlogs(prev => sortByLikesDesc(prev.map(b => b.id === maybePromiseOrBlog.id ? maybePromiseOrBlog : b)))
+        return Promise.resolve(maybePromiseOrBlog)
+    }
+
+    const addBlog = (maybePromiseOrBlog) => {
+        if (maybePromiseOrBlog && typeof maybePromiseOrBlog.then === 'function') {
+            return maybePromiseOrBlog
+                .then(newBlog => setBlogs(prev => sortByLikesDesc(prev.concat(newBlog))))
+                .catch(err => handleNotification('Failed to add blog: ' + (err.message || err)))
+        }
+
+        setBlogs(prev => sortByLikesDesc(prev.concat(maybePromiseOrBlog)))
+        return Promise.resolve(maybePromiseOrBlog)
+    }
     const blogForm = () => {
         return (
         <div>
             <h2>Blogs</h2>
             <p>Welcome {user.name}</p>
             <button onClick={handleLogout}>Logout</button>
-            {newBlogForm()}
+            <Togglable buttonLabel = "Create new Blog">
+                <BlogForm onCreate={addBlog} onNotification={handleNotification} />
+            </Togglable>
             {blogs.map(blog =>
-            <Blog key={blog.id} blog={blog} />
+            <Blog key={blog.id} blog={blog} onLikeUpdate={updateBlog} onNotification={handleNotification} />
             )}
         </div>
         )
     }
 
-    const newBlogForm = () => {
-        return (
-            <form onSubmit={handleNewBlog}>
-                <input type="text" name="title" placeholder="Title" value={title} onChange={({ target }) => setTitle(target.value)} /><br />
-                <input type="text" name="author" placeholder="Author" value={author} onChange={({ target }) => setAuthor(target.value)} /><br />
-                <input type="text" name="url" placeholder="URL" value={url} onChange={({ target }) => setUrl(target.value)} /><br />
-                <button type="submit">Create</button>
-            </form>
-        )
-    }
     return (
         <div>
         <Notification message={notification} />
