@@ -1,10 +1,10 @@
-import { useState } from "react"
-import loginService from "../services/loginService"
+import { useState } from 'react'
+import loginService from '../services/loginService'
 
 const BlogForm = ({
     onCreate,
     onNotification
-    }) => {
+}) => {
     const [title, setTitle] = useState('')
     const [author, setAuthor] = useState('')
     const [url, setUrl] = useState('')

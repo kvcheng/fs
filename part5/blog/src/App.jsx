@@ -1,13 +1,13 @@
-    import { useState, useEffect } from 'react'
-    import Blog from './components/Blog'
-    import blogService from './services/blogsService'
-    import loginService from './services/loginService'
-    import Notification from './components/Notification'
-    import BlogForm from './components/BlogForm'
-    import Togglable from './components/Togglable'
-    import LoginForm from './components/LoginForm'
+import { useState, useEffect } from 'react'
+import Blog from './components/Blog'
+import blogService from './services/blogsService'
+import loginService from './services/loginService'
+import Notification from './components/Notification'
+import BlogForm from './components/BlogForm'
+import Togglable from './components/Togglable'
+import LoginForm from './components/LoginForm'
 
-    const App = () => {
+const App = () => {
     const [blogs, setBlogs] = useState([])
     const [user, setUser] = useState(null) // Holds token of user when logged in
     const [notification, setNotification] = useState(null)
@@ -18,15 +18,15 @@
 
     useEffect(() => {
         blogService.getAll()
-        .then(blogs => setBlogs(sortByLikesDesc(blogs)))
+            .then(blogs => setBlogs(sortByLikesDesc(blogs)))
     }, [])
 
     useEffect(() => {
         const loggedUser = window.localStorage.getItem('loggedBlogappUser')
         if (loggedUser) {
-        const user = JSON.parse(loggedUser)
-        setUser(user)
-        loginService.setUserToken(user.token)
+            const user = JSON.parse(loggedUser)
+            setUser(user)
+            loginService.setUserToken(user.token)
         }
     }, [])
 
@@ -54,49 +54,38 @@
         )
     }
 
-    const updateBlog = (maybePromiseOrBlog) => {
-        if (maybePromiseOrBlog && typeof maybePromiseOrBlog.then === 'function') {
-            return maybePromiseOrBlog
-                .then(updatedBlog => setBlogs(prev => sortByLikesDesc(prev.map(b => b.id === updatedBlog.id ? updatedBlog : b))))
-                .catch(err => handleNotification('Failed to update blog: ' + (err.message || err)))
-        }
-
-        // plain blog object
-        setBlogs(prev => sortByLikesDesc(prev.map(b => b.id === maybePromiseOrBlog.id ? maybePromiseOrBlog : b)))
-        return Promise.resolve(maybePromiseOrBlog)
+    const deleteBlog = (deletedBlog) => {
+        setBlogs(prev => sortByLikesDesc(prev.filter(b => b.id !== deletedBlog.id)))
     }
 
-    const addBlog = (maybePromiseOrBlog) => {
-        if (maybePromiseOrBlog && typeof maybePromiseOrBlog.then === 'function') {
-            return maybePromiseOrBlog
-                .then(newBlog => setBlogs(prev => sortByLikesDesc(prev.concat(newBlog))))
-                .catch(err => handleNotification('Failed to add blog: ' + (err.message || err)))
-        }
+    const updateBlog = (updatedBlog) => {
+        setBlogs(prev => sortByLikesDesc(prev.map(b => b.id === updatedBlog.id ? updatedBlog : b)))
+    }
 
-        setBlogs(prev => sortByLikesDesc(prev.concat(maybePromiseOrBlog)))
-        return Promise.resolve(maybePromiseOrBlog)
+    const addBlog = (newBlog) => {
+        setBlogs(prev => sortByLikesDesc(prev.concat(newBlog)))
     }
     const blogForm = () => {
         return (
-        <div>
-            <h2>Blogs</h2>
-            <p>Welcome {user.name}</p>
-            <button onClick={handleLogout}>Logout</button>
-            <Togglable buttonLabel = "Create new Blog">
-                <BlogForm onCreate={addBlog} onNotification={handleNotification} />
-            </Togglable>
-            {blogs.map(blog =>
-            <Blog key={blog.id} blog={blog} onLikeUpdate={updateBlog} onNotification={handleNotification} />
-            )}
-        </div>
+            <div>
+                <h2>Blogs</h2>
+                <p>Welcome {user.name}</p>
+                <button onClick={handleLogout}>Logout</button>
+                <Togglable buttonLabel = "Create new Blog">
+                    <BlogForm onCreate={addBlog} onNotification={handleNotification} />
+                </Togglable>
+                {blogs.map(blog =>
+                    <Blog key={blog.id} blog={blog} onLikeUpdate={updateBlog} onNotification={handleNotification} onDeleteUpdate={deleteBlog} />
+                )}
+            </div>
         )
     }
 
     return (
         <div>
-        <Notification message={notification} />
-        {user ? blogForm() : loginForm()}
+            <Notification message={notification} />
+            {user ? blogForm() : loginForm()}
         </div>
     )
-    }
-    export default App
+}
+export default App
