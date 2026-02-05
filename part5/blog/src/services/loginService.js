@@ -14,9 +14,4 @@ const login = async credentials => {
     return res.data
 }
 
-const createBlog = async(newBlog) => {
-    const res = await axios.post('/api/blogs', newBlog)
-    return res.data
-}
-
-export default { login, setUserToken, createBlog }
+export default { login, setUserToken }

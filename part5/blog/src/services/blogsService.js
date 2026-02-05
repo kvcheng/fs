@@ -16,4 +16,8 @@ const removeBlog = (blogId) => {
     return req.then(response => response.data)
 }
 
-export default { getAll, updateBlog, removeBlog }
+const createBlog = async(newBlog) => {
+    const res = await axios.post('/api/blogs', newBlog)
+    return res.data
+}
+export default { getAll, updateBlog, removeBlog, createBlog }

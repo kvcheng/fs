@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import loginService from '../services/loginService'
+import blogsService from '../services/blogsService'
 
 const BlogForm = ({
     onCreate,
@@ -12,19 +12,19 @@ const BlogForm = ({
     const handleNewBlog = async (event) => {
         event.preventDefault()
         const blogObject = {
-            title: event.target.title.value,
-            author: event.target.author.value,
-            url: event.target.url.value
+            title: title,
+            author: author,
+            url: url
         }
         try {
-            const newBlog = await loginService.createBlog(blogObject)
+            const newBlog = await blogsService.createBlog(blogObject)
             onCreate(newBlog)
             onNotification(`New blog ${title} created successfully`)
             setTitle('')
             setAuthor('')
             setUrl('')
-        } catch {
-            onNotification('Failed to create new blog')
+        } catch (err) {
+            onNotification(`Failed to create new blog: ${err.message}`)
         }
 
     }
