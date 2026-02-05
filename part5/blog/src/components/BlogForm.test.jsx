@@ -9,7 +9,7 @@ const mockCreateBlog = vi.mocked(blogsService.createBlog)
 describe('Tests for BlogForm component', () => {
     beforeEach(() => {
         vi.clearAllMocks()
-        mockCreateBlog.mockResolvedValue({ title: '', author: '', url: '' })
+        mockCreateBlog.mockResolvedValue({ title: 'Test Title', author: 'Test Author', url: 'https://test.url' })
     })
 
     test('Inputting form leads to blog creation', async () => {
@@ -32,7 +32,7 @@ describe('Tests for BlogForm component', () => {
         console.log(createBlog.mock.calls)
         expect(createBlog).toHaveBeenCalledTimes(1)
 
-        expect(mockCreateBlog).toHaveBeenCalledWith({
+        expect(createBlog).toHaveBeenCalledWith({
             title: 'Test Title',
             author: 'Test Author',
             url: 'https://test.url'
