@@ -9,6 +9,8 @@ const mockCreateBlog = vi.mocked(blogsService.createBlog)
 describe('Tests for BlogForm component', () => {
     beforeEach(() => {
         vi.clearAllMocks()
+        // Apparently okay to have a hardcoded mock return value as this simulates what is returned for a successful API response
+        // 'Provides stable and predictable API behavior in tests'
         mockCreateBlog.mockResolvedValue({ title: 'Test Title', author: 'Test Author', url: 'https://test.url' })
     })
 
