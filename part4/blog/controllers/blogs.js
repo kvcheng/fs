@@ -22,7 +22,8 @@ blogsRouter.post('/', userExtractor, async(request, response) => {
     user.blogs = user.blogs.concat(uploadedBlog._id)
     await user.save()
 
-    response.status(201).json(uploadedBlog)
+    const populatedBlog = await Blog.findById(uploadedBlog._id).populate('user', { username: 1, name: 1, id: 1 })
+    response.status(201).json(populatedBlog)
 })
 
 blogsRouter.delete('/:id', userExtractor, async(request, response) => {
@@ -54,7 +55,9 @@ blogsRouter.put('/:id', async(request, response) => {
         { new: true }
     )
 
-    response.json(updatedBlog)
+    // return the updated blog with populated user so frontend can compare user ids
+    const populatedUpdated = await Blog.findById(updatedBlog._id).populate('user', { username: 1, name: 1, id: 1 })
+    response.json(populatedUpdated)
 })
 
 module.exports = blogsRouter

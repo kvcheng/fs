@@ -11,7 +11,13 @@ const createBlog = async (page, title, author, url) => {
     await page.getByLabel('URL').fill('https://testing.com')
     await page.getByRole('button', { name: 'Create' }).click()
 }
+
+const logout = async (page) => {
+    await page.getByRole('button', { name: 'Logout' }).click()
+}
+
 export {
     loginUser,
-    createBlog
+    createBlog,
+    logout
 }

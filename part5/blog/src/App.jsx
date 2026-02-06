@@ -75,7 +75,7 @@ const App = () => {
                     <BlogForm onCreate={addBlog} onNotification={handleNotification} />
                 </Togglable>
                 {blogs.map(blog =>
-                    <Blog key={blog.id} blog={blog} onLikeUpdate={updateBlog} onNotification={handleNotification} onDeleteUpdate={deleteBlog} />
+                    <Blog key={blog.id} blog={blog} user={user} onLikeUpdate={updateBlog} onNotification={handleNotification} onDeleteUpdate={deleteBlog} />
                 )}
             </div>
         )

@@ -68,20 +68,37 @@ describe('Blog app', () => {
 
             test('Whether a user who created the blog CAN delete the blog', async({ page }) => {
                 await page.getByRole('button', { name: 'Show Details' }).first().click()
-                await page.getByRole('button', { name: 'Remove' }).click()
-                page.on('dialog', async dialog => {
-                    await expect(dialog.message()).toContain('Are you sure you want to remove the blog My First Blog Post by John Doe?')
+                
+                // Set up dialog handler BEFORE clicking Remove
+                page.once('dialog', async dialog => {
+                    expect(dialog.message()).toContain('Are you sure you want to remove the blog My First Blog Post by John Doe?')
                     await dialog.accept()
                 })
+                
+                await page.getByRole('button', { name: 'Remove' }).click()
                 await expect(page.getByText('My First Blog Post by John Doe')).not.toBeVisible()
             })
 
-            // test(`Whether a user who didn't create a blog CANNOT delete the blog`, async({ page }) => {
-            //     await page.getByRole('button', { name: 'Show Details' }).first().click()
+            test(`Whether a user who didn't create the blog CANNOT see the delete button`, async({ page }) => {
+                await page.getByRole('button', { name: 'Logout' }).click()
+                await loginUser(page, 'AnotherUser123', 'testing')
+                await page.getByRole('button', { name: 'Show Details' }).first().click()
+                await expect(page.getByRole('button', { name: 'Remove' })).not.toBeVisible()
+            })
+            
+            // oops they weren't meant to see the button in the first place
+            // test(`Whether a user who didn't create the blog CANNOT delete the blog`, async({ page }) => {
             //     await page.getByRole('button', { name: 'Logout' }).click()
             //     await loginUser(page, 'AnotherUser123', 'testing')
             //     await page.getByRole('button', { name: 'Show Details' }).first().click()
-            //     await expect(page.getByRole('button', { name: 'Remove' })).click()
+
+            //     page.once('dialog', async dialog => {
+            //         expect(dialog.message()).toContain('Are you sure you want to remove the blog My First Blog Post by John Doe?')
+            //         await dialog.accept()
+            //     })
+            //     await page.getByRole('button', { name: 'Remove' }).click()
+            //     await expect(page.getByText('My First Blog Post by John Doe')).toBeVisible()
+            //     await expect(page.getByText('User not authorized to delete this blog')).toBeVisible()
             // })
             })
         })

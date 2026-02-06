@@ -24,7 +24,7 @@ const BlogForm = ({
             setAuthor('')
             setUrl('')
         } catch (err) {
-            onNotification(`Failed to create new blog: ${err.message}`)
+            onNotification(`Failed to create new blog: ${(err.response.data.error || err.message)}`)
         }
 
     }
