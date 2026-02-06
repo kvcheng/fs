@@ -4,11 +4,13 @@ const loginUser = async (page, username, password) => {
     await page.getByRole('button', { name: 'Login' }).click()
 }
 
-const createBlog = async (page, title, author, url) => {
-    await page.getByRole('button', { name: 'Create new Blog' }).click()
-    await page.getByLabel('Title').fill('My First Blog Post')
-    await page.getByLabel('Author').fill('John Doe')
-    await page.getByLabel('URL').fill('https://testing.com')
+const createBlog = async (page, title, author, url, isFirst) => {
+    if (isFirst) {
+        await page.getByRole('button', { name: 'Create new Blog' }).click()
+    }
+    await page.getByLabel('Title').fill(title)
+    await page.getByLabel('Author').fill(author)
+    await page.getByLabel('URL').fill(url)
     await page.getByRole('button', { name: 'Create' }).click()
 }
 
