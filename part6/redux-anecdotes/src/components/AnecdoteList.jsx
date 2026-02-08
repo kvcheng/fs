@@ -1,5 +1,6 @@
 import { useDispatch, useSelector } from "react-redux"
 import { updateVotes } from "../reducers/anecdoteReducer"
+import { setNotification, clearNotification } from "../reducers/notificationReducer"
 const Anecdote = ({ anecdote, handleClick }) => {
     return (
         <div key={anecdote.id}>
@@ -11,6 +12,7 @@ const Anecdote = ({ anecdote, handleClick }) => {
         </div>
     )
 }
+
 const AnecdoteList = () => {
     // Use both selectors, first applying the filter and then sorting in descending order of votes
     const anecdotes = useSelector(({ anecdotes, filter }) => {
@@ -25,13 +27,21 @@ const AnecdoteList = () => {
 
     const dispatch = useDispatch()
 
+    const handleVotes = (content, id) => {
+        dispatch(updateVotes(id))
+        dispatch(setNotification(`You voted for '${content}'`))
+        setTimeout(() => {
+            dispatch(clearNotification())
+        }, 5000)
+    }
+    
     return (
         <ul>
             {anecdotes.map(anecdote => (
                 <Anecdote 
                     key={anecdote.id}
                     anecdote={anecdote}
-                    handleClick={() => dispatch(updateVotes(anecdote.id))}
+                    handleClick={() => handleVotes(anecdote.content, anecdote.id)}
                 />
                     ))}
         </ul>
