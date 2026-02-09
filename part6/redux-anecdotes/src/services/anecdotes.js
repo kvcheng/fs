@@ -8,7 +8,7 @@ const checkResponse = (response) => {
 
 const getAll = async () => {
   const response = await fetch(baseUrl)
-  checkResponse(response)
+  await checkResponse(response)
   return response.json()
 }
 
@@ -21,7 +21,7 @@ const createAnecdote = async (anecdote) => {
     body: JSON.stringify({ content: anecdote, votes: 0 })
   })
 
-  checkResponse(response)
+  await checkResponse(response)
   return response.json()
 }
 
@@ -34,7 +34,7 @@ const updateVotes = async (body, id) => {
     body: JSON.stringify(body)
   })
 
-  checkResponse(response)
+  await checkResponse(response)
   return response.json()
 }
 
