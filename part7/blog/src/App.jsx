@@ -1,78 +1,38 @@
 import { useEffect } from "react";
-import Blog from "./components/Blog";
 import Notification from "./components/Notification";
-import BlogForm from "./components/BlogForm";
-import Togglable from "./components/Togglable";
 import LoginForm from "./components/LoginForm";
-import { useDispatch, useSelector } from 'react-redux';
-import { setNotification } from "./reducers/notificationReducer";
-import { createBlog, initialiseBlogs, removeBlog, updateBlog } from "./reducers/blogReducer";
-import { initialiseUsers, logoutUser } from "./reducers/loginReducer";
-
+import { useDispatch } from "react-redux";
+import { initialiseBlogs } from "./reducers/blogReducer";
+import { Routes, Route } from "react-router-dom";
+import { initialiseUsers } from "./reducers/usersReducer";
+import UserList from "./components/UserList";
+import ProtectedRoutes from "./components/ProtectedRoute";
+import Home from "./components/Home";
+import User from "./components/User";
+import Blog from "./components/Blog";
+import Header from "./components/Header";
 const App = () => {
-  const dispatch = useDispatch()
+    const dispatch = useDispatch();
 
-  const blogs = useSelector((state) => state.blogs);
-  const user = useSelector((state) => state.login);
+    useEffect(() => {
+        dispatch(initialiseBlogs());
+        dispatch(initialiseUsers());
+    }, [dispatch]);
 
-  useEffect(() => {
-    dispatch(initialiseBlogs())
-    dispatch(initialiseUsers())
-  }, [dispatch]);
-
-  const handleNotification = (message) => {
-    dispatch(setNotification(message, 5000));
-  };
-  const handleLogout = () => {
-    dispatch(logoutUser());
-  };
-
-  const loginForm = () => {
     return (
-      <LoginForm onNotification={handleNotification} />
+        <div>
+            <Notification />
+            <Header />
+            <Routes>
+                <Route path="/login" element={<LoginForm />} />
+                <Route element={<ProtectedRoutes />}>
+                    <Route path="*" element={<Home />} />
+                    <Route path="/users" element={<UserList />} />
+                    <Route path="/users/:id" element={<User />} />
+                    <Route path="/blogs/:id" element={<Blog />} />
+                </Route>
+            </Routes>
+        </div>
     );
-  };
-
-  const deleteBlog = (deletedBlog) => {
-    dispatch(removeBlog(deletedBlog))
-  };
-
-  const onUpdateBlog = (updatedBlog) => {
-    dispatch(updateBlog(updatedBlog))
-  };
-
-  const addBlog = (newBlog) => {
-    dispatch(createBlog(newBlog))
-  };
-
-  const blogForm = () => {
-    return (
-      <div>
-        <h2>Blogs</h2>
-        <p>Welcome {user.name}</p>
-        <button onClick={handleLogout}>Logout</button>
-        <Togglable buttonLabel="Create new Blog">
-          <BlogForm onCreate={addBlog} onNotification={handleNotification} />
-        </Togglable>
-        {blogs.map((blog) => (
-          <Blog
-            key={blog.id}
-            blog={blog}
-            user={user}
-            onLikeUpdate={onUpdateBlog}
-            onNotification={handleNotification}
-            onDeleteUpdate={deleteBlog}
-          />
-        ))}
-      </div>
-    );
-  };
-
-  return (
-    <div>
-      <Notification />
-      {user ? blogForm() : loginForm()}
-    </div>
-  );
 };
 export default App;
