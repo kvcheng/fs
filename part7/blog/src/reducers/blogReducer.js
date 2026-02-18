@@ -26,7 +26,7 @@ const blogSlice = createSlice({
                 blog.id === action.payload.id ? action.payload : blog,
             );
             return sortBlogs(updated);
-        },
+        }
     },
 });
 
@@ -58,4 +58,12 @@ export const updateBlog = (blog) => {
         dispatch(changeBlog(updatedBlog));
     };
 };
+
+export const updateComment = (blogId, comment) => {
+    return async (dispatch) => {
+        const updatedBlog = await blogsService.addComment(blogId, comment);
+        dispatch(changeBlog(updatedBlog));
+    };
+};
+
 export default blogSlice.reducer;

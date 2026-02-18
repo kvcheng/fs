@@ -20,4 +20,10 @@ const createBlog = async (newBlog) => {
     const res = await axios.post("/api/blogs", newBlog);
     return res.data;
 };
-export default { getAll, updateBlog, removeBlog, createBlog };
+
+const addComment = (blogId, comment) => {
+    const req = axios.post(`${baseUrl}/${blogId}/comments`, { content: comment });
+    return req.then((response) => response.data);
+};
+
+export default { getAll, updateBlog, removeBlog, createBlog, addComment };
