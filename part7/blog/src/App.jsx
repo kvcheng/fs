@@ -11,6 +11,9 @@ import Home from "./components/Home";
 import User from "./components/User";
 import Blog from "./components/Blog";
 import Header from "./components/Header";
+import Box from "@mui/material/Box";
+import CssBaseline from "@mui/material/CssBaseline";
+
 const App = () => {
     const dispatch = useDispatch();
 
@@ -20,7 +23,8 @@ const App = () => {
     }, [dispatch]);
 
     return (
-        <div>
+        <Box sx={{ minHeight: "100vh", bgcolor: "background.default" }}>
+            <CssBaseline />
             <Notification />
             <Header />
             <Routes>
@@ -32,7 +36,7 @@ const App = () => {
                     <Route path="/blogs/:id" element={<Blog />} />
                 </Route>
             </Routes>
-        </div>
+        </Box>
     );
 };
 export default App;

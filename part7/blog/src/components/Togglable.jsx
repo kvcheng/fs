@@ -1,10 +1,12 @@
 import { useState, useImperativeHandle } from "react";
+import Box from "@mui/material/Box";
+import Button from "@mui/material/Button";
+import Collapse from "@mui/material/Collapse";
+import AddIcon from "@mui/icons-material/Add";
+import CloseIcon from "@mui/icons-material/Close";
 
 const Togglable = (props) => {
     const [visible, setVisible] = useState(false);
-
-    const hideWhenVisible = { display: visible ? "none" : "" };
-    const showWhenVisible = { display: visible ? "" : "none" };
 
     const toggleVisibility = () => {
         setVisible(!visible);
@@ -15,15 +17,32 @@ const Togglable = (props) => {
     });
 
     return (
-        <div>
-            <div style={hideWhenVisible}>
-                <button onClick={toggleVisibility}>{props.buttonLabel}</button>
-            </div>
-            <div style={showWhenVisible}>
-                {props.children}
-                <button onClick={toggleVisibility}>cancel</button>
-            </div>
-        </div>
+        <Box>
+            {!visible && (
+                <Button
+                    variant="outlined"
+                    startIcon={<AddIcon />}
+                    onClick={toggleVisibility}
+                    sx={{ mb: 2 }}
+                >
+                    {props.buttonLabel}
+                </Button>
+            )}
+            <Collapse in={visible}>
+                <Box sx={{ mb: 3 }}>
+                    {props.children}
+                    <Button
+                        variant="outlined"
+                        color="secondary"
+                        startIcon={<CloseIcon />}
+                        onClick={toggleVisibility}
+                        sx={{ mt: 2 }}
+                    >
+                        Cancel
+                    </Button>
+                </Box>
+            </Collapse>
+        </Box>
     );
 };
 
