@@ -3,7 +3,8 @@
     "@emotion/react": "^11.14.0",
     "@emotion/styled": "^11.14.1",
     "@mui/material": "^7.3.8",
-    "react-router-dom": "^7.13.0"
+    "react-router-dom": "^7.13.0",
+    "uuid": "^13.0.0"
   },
   "devDependencies": {
     "ts-node": "^10.9.2",
