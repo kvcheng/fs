@@ -13,4 +13,8 @@ router.post('/', newPatientParser, (req: Request<unknown, unknown, NewPatientEnt
     res.send(patientService.addPatient(req.body));
 });
 
+router.get('/:id', (req: Request<{ id: string }>, res) => {
+    res.send(patientService.getPatient(req.params.id));
+});
+
 export default router;

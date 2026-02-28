@@ -28,8 +28,27 @@ const addPatient = (entry: NewPatientEntry): PatientEntry => {
     return newPatientEntry;
 };
 
+const getPatient = (id: string): PatientEntry => {
+    const patient = patients.find(p => p.id === id);
+    if (!patient) {
+        throw new Error(`Patient with id ${id} not found`);
+    }
+
+    const entries = patient.entries ? patient.entries : [];
+    return ({
+        id: patient.id,
+        name: patient.name,
+        dateOfBirth: patient.dateOfBirth,
+        gender: patient.gender,
+        occupation: patient.occupation,
+        entries,
+        ssn: patient.ssn
+    });
+};
+
 export default {
     getEntries,
     getNonSensitiveEntries,
-    addPatient
+    addPatient,
+    getPatient
 };
